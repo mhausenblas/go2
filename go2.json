@@ -1,0 +1,15 @@
+{
+  "id": "go2",
+  "cmd": "chmod u+x go2 && ./go2",
+  "cpus": 0.1,
+  "mem": 32.0,
+  "ports": [
+    6969
+  ],
+  "uris": [
+    "https://raw.githubusercontent.com/mhausenblas/go2/master/go2"
+  ],
+  "acceptedResourceRoles": [
+    "slave_public"
+  ]
+}
