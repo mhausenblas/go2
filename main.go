@@ -7,10 +7,11 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 const (
-	VERSION            string = "0.1.0"
+	VERSION            string = "0.2.0"
 	GO2_PORT           int    = 6969
 	DPID_PARAM         string = "dpid"
 	MESOS_DNS_ENDPOINT string = "http://leader.mesos:8123"
@@ -32,8 +33,19 @@ type SRVRecord struct {
 // For example:
 //  lookup("/example/app") -> 1.2.3.4, 32787
 func lookup(dpid string) (ip string, port string) {
-	query := "_" + dpid + "._tcp.marathon.mesos."
-	resp, qerr := http.Get(MESOS_DNS_ENDPOINT + "/v1/services/" + query)
+	dnspart := ""
+	if strings.Contains(dpid, "/") { // got a hierachical dpid like `/test/t0`
+		components := strings.Split(dpid[1:len(dpid)], "/")
+		for i, _ := range components {
+			dnspart = dnspart + "-" + components[len(components)-i-1]
+		}
+		dnspart = dnspart[1:len(dnspart)] // now it's t0-test
+	} else {
+		dnspart = dpid
+	}
+	q := "_" + dnspart + "._tcp.marathon.mesos."
+	log.WithFields(log.Fields{"func": "lookup"}).Info("Assembled query ", q)
+	resp, qerr := http.Get(MESOS_DNS_ENDPOINT + "/v1/services/" + q)
 	if qerr != nil {
 		log.WithFields(log.Fields{"func": "lookup"}).Error("Can't look up ", dpid, " due to ", qerr)
 		return
