@@ -73,6 +73,7 @@ func main() {
 		dpid := r.URL.Query().Get(DPID_PARAM) // extract the /?dpid=$DPID value
 		log.WithFields(log.Fields{"handle": "/"}).Info("Got dpid ", dpid)
 		ip, port := lookup(dpid)
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		fmt.Fprint(w, "http://"+ip+":"+port)
 	})
 	p := strconv.Itoa(GO2_PORT)
